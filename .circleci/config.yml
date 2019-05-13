@@ -1,0 +1,26 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: circleci/python:3.7.3-stretch
+
+    steps:
+      - checkout
+
+      - setup_remote_docker
+
+      - run:
+          name: Execute kafka integration tests
+          command: |
+            set -x
+            docker-compose up -d --file scripts/docker-compose.yml
+
+      - run:
+          background: true
+          command: |
+            python component-tests/kafka/publisher.py
+
+      - run:
+          command: |
+            python component-tests/kafka/subscriber.py
